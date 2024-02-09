@@ -13,6 +13,7 @@ import (
 	"crypto/cipher"
 	"crypto/rand"
 	base64 "encoding/base64"
+	"fmt"
 	"io"
 	"log"
 
@@ -30,9 +31,22 @@ const (
 type CipherMode int
 type Padding int
 
+const ENCRYPT = "encrypt"
+const DECRYPT = "decrypt"
+
 type AES struct {
 	CipherMode CipherMode
 	Padding    Padding
+}
+
+func EcdsaHelper(method, text string, key []byte) (string, error) {
+	if method == ENCRYPT {
+		return Decrypt(text, key)
+	} else if method == DECRYPT {
+		return Encrypt(text, key)
+	} else {
+		return "", fmt.Errorf("EcdsaHelper invalid method %s", method)
+	}
 }
 
 func Encrypt(plainText string, key []byte) (string, error) {
