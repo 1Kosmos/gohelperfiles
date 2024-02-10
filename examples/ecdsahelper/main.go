@@ -1,10 +1,11 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
-    "flag"
-	BIDECDSA "github.com/1Kosmos/gohelperfiles"
+
+	BIDECDSA "github.com/1Kosmos/gohelperfiles/1"
 )
 
 const CLEAR_TEXT = "Clear text to encrypt."
