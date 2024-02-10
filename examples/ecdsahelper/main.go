@@ -5,14 +5,15 @@ import (
 	"fmt"
 	"os"
 
-	BIDECDSA "github.com/1Kosmos/gohelperfiles/1"
+	BIDECDSA "github.com/1Kosmos/gohelperfiles"
 )
 
 const CLEAR_TEXT = "Clear text to encrypt."
 
 func main() {
 	var clearText string
-	flag.StringVar(&clearText, "text", CLEAR_TEXT, "clear text to test Ecdsahelper with")
+	flag.StringVar(&clearText, "text", CLEAR_TEXT, "clear text to test")
+	flag.Parse()
 	localPrivateKey, localPublicKey, err := BIDECDSA.GenerateKeyPair()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Ecdsahelper error: %v\n", err)
@@ -24,7 +25,7 @@ func main() {
 		os.Exit(1)
 	}
 	encSharedKey := BIDECDSA.CreateSharedKey(localPrivateKey, remotePublicKey)
-	encryptedText, err := BIDECDSA.EcdsaHelper(BIDECDSA.ENCRYPT, CLEAR_TEXT, encSharedKey)
+	encryptedText, err := BIDECDSA.EcdsaHelper(BIDECDSA.ENCRYPT, clearText, encSharedKey)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Ecdsahelper %s error: %v\n", BIDECDSA.ENCRYPT, err)
 		os.Exit(1)
@@ -35,9 +36,9 @@ func main() {
 		fmt.Fprintf(os.Stderr, "Ecdsahelper %s error: %v\n", BIDECDSA.DECRYPT, err)
 		os.Exit(1)
 	}
-	if decryptedText == CLEAR_TEXT {
-		fmt.Fprintf(os.Stderr, "Ecdsahelper %s == %s\n", decryptedText, CLEAR_TEXT)
+	if decryptedText == clearText {
+		fmt.Fprintf(os.Stderr, "Ecdsahelper %s == %s\n", decryptedText, clearText)
 	} else {
-		fmt.Fprintf(os.Stderr, "Ecdsahelper %s != %s\n", decryptedText, CLEAR_TEXT)
+		fmt.Fprintf(os.Stderr, "Ecdsahelper %s != %s\n", decryptedText, clearText)
 	}
 }
