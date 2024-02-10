@@ -41,9 +41,9 @@ type AES struct {
 
 func EcdsaHelper(method, text string, key []byte) (string, error) {
 	if method == ENCRYPT {
-		return Decrypt(text, key)
-	} else if method == DECRYPT {
 		return Encrypt(text, key)
+	} else if method == DECRYPT {
+		return Decrypt(text, key)
 	} else {
 		return "", fmt.Errorf("EcdsaHelper invalid method %s", method)
 	}

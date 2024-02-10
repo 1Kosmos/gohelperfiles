@@ -3,13 +3,15 @@ package main
 import (
 	"fmt"
 	"os"
-
+    "flag"
 	BIDECDSA "github.com/1Kosmos/gohelperfiles"
 )
 
 const CLEAR_TEXT = "Clear text to encrypt."
 
 func main() {
+	var clearText string
+	flag.StringVar(&clearText, "text", CLEAR_TEXT, "clear text to test Ecdsahelper with")
 	localPrivateKey, localPublicKey, err := BIDECDSA.GenerateKeyPair()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Ecdsahelper error: %v\n", err)
