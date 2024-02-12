@@ -54,11 +54,22 @@ func Encrypt(plainText string, key []byte) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return encryptGcm(aes, plainText)
+	//block cipher wrapped in Galois Counter Mode
+	gcm, err := cipher.NewGCMWithNonceSize(aes, 16)
+	if err != nil {
+		return "", err
+	}
+	nonce := make([]byte, gcm.NonceSize())
+	if _, err = io.ReadFull(rand.Reader, nonce); err != nil {
+		return "", err
+	}
+	plainTextBytes := []byte(plainText)
+	cipherText := gcm.Seal(nil, nonce, plainTextBytes, nil)
+	return packCipherData(cipherText, nonce, gcm.Overhead()), nil
 }
 
 func Decrypt(cipherText string, key []byte) (string, error) {
-	data, err := base64.StdEncoding.DecodeString(cipherText)
+	encrypted, err := base64.StdEncoding.DecodeString(cipherText)
 	if err != nil {
 		return "", err
 	}
@@ -66,7 +77,17 @@ func Decrypt(cipherText string, key []byte) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return decryptGcm(aes, data)
+	//block cipher wrapped in Galois Counter Mode
+	aesgcm, err := cipher.NewGCMWithNonceSize(aes, 16)
+	if err != nil {
+		return "", err
+	}
+	encryptedBytes, nonce := unpackCipherData(encrypted, aesgcm.NonceSize())
+	decryptedBytes, err := aesgcm.Open(nil, nonce, encryptedBytes, nil)
+	if err != nil {
+		return "", err
+	}
+	return string(decryptedBytes[:]), nil
 }
 
 func GenerateKeyPair() (string, string, error) {
@@ -95,33 +116,7 @@ func CreateSharedKey(privKeyStr string, pubKeyStr string) []byte {
 	return secp256k1.GenerateSharedSecret(privKey, pubKey)
 }
 
-func encryptGcm(aes cipher.Block, plainText string) (string, error) {
-	gcm, err := cipher.NewGCMWithNonceSize(aes, 16)
-	if err != nil {
-		return "", err
-	}
-	nonce := make([]byte, gcm.NonceSize())
-	if _, err = io.ReadFull(rand.Reader, nonce); err != nil {
-		return "", err
-	}
-	plainTextBytes := []byte(plainText)
-	cipherText := gcm.Seal(nil, nonce, plainTextBytes, nil)
-	return packCipherData(cipherText, nonce, gcm.Overhead()), nil
-}
-
-func decryptGcm(aes cipher.Block, encrypted []byte) (string, error) {
-	aesgcm, err := cipher.NewGCMWithNonceSize(aes, 16)
-	if err != nil {
-		return "", err
-	}
-	encryptedBytes, nonce := unpackCipherData(encrypted, aesgcm.NonceSize())
-	decryptedBytes, err := aesgcm.Open(nil, nonce, encryptedBytes, nil)
-	if err != nil {
-		return "", err
-	}
-	return string(decryptedBytes[:]), nil
-}
-
+// private functions
 func packCipherData(cipherText []byte, iv []byte, tagSize int) string {
 	ivLen := len(iv)
 	data := make([]byte, len(cipherText)+ivLen)
