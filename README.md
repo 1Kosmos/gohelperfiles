@@ -57,6 +57,27 @@ func main() {
 	}
 }
 ```
+To compile and run, change directory ```examples/ecdsahelper```:
+
+```
+go mod init ecdsahelper
+go: creating new go.mod: module ecdsahelper
+go: to add module requirements and sums:
+	go mod tidy
+go mod tidy
+go: finding module for package github.com/1Kosmos/gohelperfiles
+go: found github.com/1Kosmos/gohelperfiles in github.com/1Kosmos/gohelperfiles v1.0.0
+go build
+./ecdsahelper 
+Ecdsahelper Clear text to encrypt. == Clear text to encrypt.
+./ecdsahelper -text "different clear text"
+Ecdsahelper different clear text == different clear text
+./ecdsahelper -h
+Usage of ./ecdsahelper:
+  -text string
+    	clear text to test (default "Clear text to encrypt.")
+```
+
 For usage of Encrypt/Decrypt see tests:
 
 ```
